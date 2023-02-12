@@ -2,7 +2,6 @@ const request_sql = require('../DataBase/database.js');
 const BodyParser = require('body-parser');
 var JsonParser = BodyParser.json();
 var express = require('express');
-const { json } = require('express');
 var router = express.Router()
 
 router.post('/', JsonParser, (req, res) => {
@@ -46,7 +45,7 @@ router.put('/', JsonParser, (req, res) => {
             console.log("error :", err)
             return;
         }
-        console.log("Table updated: ", { UpdateItem });
+        console.log("Table successfully updated: ", { UpdateItem });
     });
     res.send(200);
 });
@@ -60,7 +59,7 @@ router.delete('/', JsonParser, (req, res) => {
             console.log("error :", err)
             return;
         }
-        console.log("Line suceffuly delete: ", { DeleteItem })
+        console.log("Line successfully delete: ", { DeleteItem })
     });
     res.send(200);
 })
