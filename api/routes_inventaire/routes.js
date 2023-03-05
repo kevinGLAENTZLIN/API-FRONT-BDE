@@ -4,7 +4,7 @@ var JsonParser = BodyParser.json();
 var express = require('express');
 var router = express.Router()
 
-router.post('/', JsonParser, (req, res) => {
+router.post('/add', JsonParser, async (req, res) => {
     const newItem = {
         nom: req.body.nom,
         nombres: req.body.nombres,
@@ -21,7 +21,7 @@ router.post('/', JsonParser, (req, res) => {
     res.send(200);
 });
 
-router.get('/', (req, res) => {
+router.get('/show', JsonParser, async (req, res) => {
     request_sql.query('SELECT * FROM inventaire', (err, res) => {
         if (err) {
             console.log("error: ", err);
@@ -32,7 +32,7 @@ router.get('/', (req, res) => {
     res.send(200);
 });
 
-router.put('/', JsonParser, (req, res) => {
+router.put('/update', JsonParser, async (req, res) => {
     const UpdateItem = {
         nom: req.body.nom,
         nombres: req.body.nombres,
@@ -50,7 +50,7 @@ router.put('/', JsonParser, (req, res) => {
     res.send(200);
 });
 
-router.delete('/', JsonParser, (req, res) => {
+router.delete('/delete', JsonParser, async (req, res) => {
     const DeleteItem = {
         nom: req.body.nom,
     }
