@@ -3,7 +3,7 @@ var app = express();
 var connect_database = require('./DataBase/database.js')
 var routing_inventaire = require('./routes_inventaire/routes.js');
 var routing_user = require('./routes_user/routes_user.js');
-const app_port = process.env.APP_PORT;
+const app_port = process.env.APP_PORT | 3000;
 
 connect_database;
 app.use('/user', routing_user);

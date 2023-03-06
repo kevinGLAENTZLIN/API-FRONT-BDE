@@ -2,13 +2,13 @@ const request_sql = require('../DataBase/database.js');
 const BodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const auth = require('../authentification/auth.js');
 require('dotenv').config();
 var JsonParser = BodyParser.json();
 var express = require('express');
 var router_user = express.Router()
 
-router_user.post('/add', JsonParser, async (req, res) => {
-    console.log(req.body);
+const call_api_admin_add = async (req) => {
     const newUser = {
         name: req.body.name,
         nom: req.body.nom,
@@ -19,30 +19,17 @@ router_user.post('/add', JsonParser, async (req, res) => {
     }
     newUser.password = await bcrypt.hash(req.body.password, 10);
     newUser.accessToken = jwt.sign(newUser, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
-    
-    console.log("New user create: ", { newUser });
-    request_sql.query(`INSERT INTO utilisateur VALUES ("${newUser.name}", "${newUser.nom}", "${newUser.years}", "${newUser.password}", "${newUser.accessToken}", "${newUser.law}")`, (err, res) => {
+
+    request_sql.query(`INSERT INTO utilisateur VALUES ("${newUser.name}", "${newUser.nom}", "${newUser.years}", "${newUser.accessToken}", "${newUser.password}", "${newUser.law}")`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             return;
         }
         console.log("New user create: ", { newUser });
     });
-    res.send(200);
-});
+}
 
-router_user.get('/show', JsonParser, async (req, res) => {
-    request_sql.query('SELECT * FROM utilisateur', (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            return;
-        }
-        console.log("Table well displayed");
-    });
-    res.send(200);
-});
-
-router_user.put('/update', JsonParser, async (req, res) => {
+call_api_admin_update = async (req) => {
     const UpdateUser = {
         name: req.body.name,
         nom: req.body.nom,
@@ -57,10 +44,62 @@ router_user.put('/update', JsonParser, async (req, res) => {
         }
         console.log("Table successfully updated: ", { UpdateUser });
     });
+}
+
+router_user.post('/add', JsonParser, auth.verifyToken, async (req, res) => {
+    let isAuth
+    await auth.find_law_value("law", req.body.accesToken, (err, ret) => {
+        if (err) {
+          console.log('Error:', err);
+        } else {
+        isAuth = ret[0].law;
+        if (isAuth == undefined) {
+            res.status(500);
+            return;
+        }
+          if (isAuth == 666) {
+            call_api_admin_add(req)
+            res.status(200).send("USER ADD");
+          } else {
+            res.status(403).send("PERMISSION DENIED");
+          }
+        }
+    });
+});
+
+router_user.get('/show', JsonParser, auth.verifyToken, async (req, res) => {
+    request_sql.query('SELECT * FROM utilisateur', (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            return;
+        }
+        console.log("Table well displayed");
+    });
     res.send(200);
 });
 
-router_user.delete('/delete', JsonParser, async (req, res) => {
+router_user.put('/update', JsonParser, auth.verifyToken, async (req, res) => {
+    let isAuth
+    await auth.find_law_value("law", req.body.accesToken, (err, ret) => {
+        if (err) {
+          console.log('Error:', err);
+        } else {
+        isAuth = ret[0].law;
+        if (isAuth == undefined) {
+            res.status(500);
+            return;
+        }
+          if (isAuth == 666) {
+            call_api_admin_update(req)
+            res.status(200).send("USER UPDATE");
+          } else {
+            res.status(403).send("PERMISSION DENIED");
+          }
+        }
+    });
+});
+
+router_user.delete('/delete', JsonParser, auth.verifyToken, async (req, res) => {
     const DeleteUser = {
         name: req.body.name,
     }
@@ -72,6 +111,6 @@ router_user.delete('/delete', JsonParser, async (req, res) => {
         console.log("Line successfully delete: ", { DeleteUser })
     });
     res.send(200);
-})
+});
 
 module.exports = router_user;

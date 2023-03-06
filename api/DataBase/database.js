@@ -6,8 +6,7 @@ console.log("en connexion...");
 var connection = mysql.createConnection ({
     database: db_config.database,
     host: db_config.host,
-    user: db_config.user,
-    password: db_config.password
+    user: db_config.user
 })
 
 connection.connect(error => {
