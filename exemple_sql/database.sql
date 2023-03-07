@@ -5,10 +5,10 @@ USE BDE;
 
 CREATE TABLE inventaire
 (
-    nom VARCHAR(50),
-    nombres INT,
-    référence VARCHAR(50),
-    prix FLOAT
+    name VARCHAR(50),
+    number INT,
+    reference VARCHAR(50),
+    price FLOAT
 );
 
 CREATE TABLE utilisateur

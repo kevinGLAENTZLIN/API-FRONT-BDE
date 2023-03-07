@@ -25,7 +25,15 @@ const call_api_admin_add = async (req) => {
             console.log("error: ", err);
             return;
         }
-        console.log("New user create: ", { newUser });
+    });
+}
+
+call_api_admin_display = async () => {
+    request_sql.query('SELECT * FROM utilisateur', (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            return;
+        }
     });
 }
 
@@ -37,17 +45,29 @@ call_api_admin_update = async (req) => {
         law: req.body.law
     }
     request_sql.query('UPDATE utilisateur SET name = ?, nom = ?, years = ?, law = ? WHERE name = ?',
-    [UpdateUser.name, UpdateUser.nom, UpdateUser.years, UpdateUser.law, UpdateUser.nom], (err, res) => {
+    [UpdateUser.name, UpdateUser.nom, UpdateUser.years, UpdateUser.law, UpdateUser.name], (err, res) => {
         if (err) {
             console.log("error :", err)
             return;
         }
-        console.log("Table successfully updated: ", { UpdateUser });
+    });
+}
+
+call_api_admin_delete = async (req) => {
+    const DeleteUser = {
+        name: req.body.name,
+    }
+    request_sql.query('DELETE FROM utilisateur WHERE name = ?', [DeleteUser.name], (err, res) => {
+        if (err) {
+            console.log("error :", err)
+            return;
+        }
     });
 }
 
 router_user.post('/add', JsonParser, auth.verifyToken, async (req, res) => {
     let isAuth
+
     await auth.find_law_value("law", req.body.accesToken, (err, ret) => {
         if (err) {
           console.log('Error:', err);
@@ -57,8 +77,8 @@ router_user.post('/add', JsonParser, auth.verifyToken, async (req, res) => {
             res.status(500);
             return;
         }
-          if (isAuth == 666) {
-            call_api_admin_add(req)
+          if (isAuth == process.env.ADMIN) {
+            call_api_admin_add(req);
             res.status(200).send("USER ADD");
           } else {
             res.status(403).send("PERMISSION DENIED");
@@ -68,14 +88,25 @@ router_user.post('/add', JsonParser, auth.verifyToken, async (req, res) => {
 });
 
 router_user.get('/show', JsonParser, auth.verifyToken, async (req, res) => {
-    request_sql.query('SELECT * FROM utilisateur', (err, res) => {
+    let isAuth
+
+    await auth.find_law_value("law", req.body.accesToken, (err, ret) => {
         if (err) {
-            console.log("error: ", err);
+          console.log('Error:', err);
+        } else {
+        isAuth = ret[0].law;
+        if (isAuth == undefined) {
+            res.status(500);
             return;
         }
-        console.log("Table well displayed");
+          if (isAuth == process.env.ADMIN) {
+            call_api_admin_display();
+            res.status(200).send("ALL USER WELL DISPLAYED");
+          } else {
+            res.status(403).send("PERMISSION DENIED");
+          }
+        }
     });
-    res.send(200);
 });
 
 router_user.put('/update', JsonParser, auth.verifyToken, async (req, res) => {
@@ -89,8 +120,8 @@ router_user.put('/update', JsonParser, auth.verifyToken, async (req, res) => {
             res.status(500);
             return;
         }
-          if (isAuth == 666) {
-            call_api_admin_update(req)
+          if (isAuth == process.env.ADMIN) {
+            call_api_admin_update(req);
             res.status(200).send("USER UPDATE");
           } else {
             res.status(403).send("PERMISSION DENIED");
@@ -100,17 +131,25 @@ router_user.put('/update', JsonParser, auth.verifyToken, async (req, res) => {
 });
 
 router_user.delete('/delete', JsonParser, auth.verifyToken, async (req, res) => {
-    const DeleteUser = {
-        name: req.body.name,
-    }
-    request_sql.query('DELETE FROM utilisateur WHERE name = ?', [DeleteUser.name], (err, res) => {
+    let isAuth
+
+    await auth.find_law_value("law", req.body.accesToken, (err, ret) => {
         if (err) {
-            console.log("error :", err)
+          console.log('Error:', err);
+        } else {
+        isAuth = ret[0].law;
+        if (isAuth == undefined) {
+            res.status(500);
             return;
         }
-        console.log("Line successfully delete: ", { DeleteUser })
+          if (isAuth == process.env.ADMIN) {
+            call_api_admin_delete(req);
+            res.status(200).send("USER SUCCEFULY REMOVE");
+          } else {
+            res.status(403).send("PERMISSION DENIED");
+          }
+        }
     });
-    res.send(200);
 });
 
 module.exports = router_user;

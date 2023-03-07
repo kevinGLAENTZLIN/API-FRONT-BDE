@@ -3,65 +3,62 @@ const BodyParser = require('body-parser');
 var JsonParser = BodyParser.json();
 var express = require('express');
 var router = express.Router()
+const auth = require('../authentification/auth.js');
 
-router.post('/add', JsonParser, async (req, res) => {
+router.post('/add', JsonParser, auth.verifyToken, async (req, res) => {
     const newItem = {
-        nom: req.body.nom,
-        nombres: req.body.nombres,
-        reférence: req.body.reférence,
-        prix: req.body.prix
+        name: req.body.name,
+        number: req.body.number,
+        reference: req.body.reference,
+        price: req.body.price
     }
-    request_sql.query(`INSERT INTO inventaire VALUES ("${newItem.nom}", "${newItem.nombres}", "${newItem.reférence}", "${newItem.prix}")`, (err, res) => {
+    request_sql.query(`INSERT INTO inventaire VALUES ("${newItem.name}", "${newItem.number}", "${newItem.reference}", "${newItem.price}")`, (err, res) => {
         if (err) {
             console.log("error: ", err);
             return;
         }
-        console.log("New item create: ", { newItem });
     });
-    res.send(200);
+    res.status(200).send("Object successfuly add in table");
 });
 
-router.get('/show', JsonParser, async (req, res) => {
+router.get('/show', JsonParser, auth.verifyToken, async (req, res) => {
     request_sql.query('SELECT * FROM inventaire', (err, res) => {
         if (err) {
             console.log("error: ", err);
             return;
         }
-        console.log("Database well displayed");
     });
-    res.send(200);
+    res.status(200).send("Inventaire well displayed");
 });
 
-router.put('/update', JsonParser, async (req, res) => {
+router.put('/update', JsonParser, auth.verifyToken, async (req, res) => {
     const UpdateItem = {
-        nom: req.body.nom,
-        nombres: req.body.nombres,
-        reférence: req.body.reférence,
-        prix: req.body.prix
+        name: req.body.name,
+        number: req.body.number,
+        reference: req.body.réference,
+        price: req.body.price
     }
-    request_sql.query('UPDATE inventaire SET nom = ?, nombres = ?, reférence = ?, prix = ? WHERE nom = ?',
-    [UpdateItem.nom, UpdateItem.nombres, UpdateItem.reférence, UpdateItem.prix, UpdateItem.nom], (err, res) => {
+    request_sql.query('UPDATE inventaire SET name = ?, number = ?, reference = ?, price = ? WHERE name = ?',
+    [UpdateItem.name, UpdateItem.number, UpdateItem.reference, UpdateItem.price, UpdateItem.name], (err, res) => {
         if (err) {
             console.log("error :", err)
             return;
         }
-        console.log("Table successfully updated: ", { UpdateItem });
     });
-    res.send(200);
+    res.status(200).send("Inventaire well updated");
 });
 
-router.delete('/delete', JsonParser, async (req, res) => {
+router.delete('/delete', JsonParser, auth.verifyToken, async (req, res) => {
     const DeleteItem = {
-        nom: req.body.nom,
+        name: req.body.name,
     }
-    request_sql.query('DELETE FROM inventaire WHERE nom = ?', [DeleteItem.nom], (err, res) => {
+    request_sql.query('DELETE FROM inventaire WHERE name = ?', [DeleteItem.name], (err, res) => {
         if (err) {
             console.log("error :", err)
             return;
         }
-        console.log("Line successfully delete: ", { DeleteItem })
     });
-    res.send(200);
+    res.status(200).send("Object successfuly delete in table");
 })
 
 module.exports = router;

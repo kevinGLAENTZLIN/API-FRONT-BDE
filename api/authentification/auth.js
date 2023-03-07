@@ -11,7 +11,6 @@ const find_law_value = async (value, data, callback) => {
 			console.log("error: ", err);
 			callback(err);
 		} else {
-			console.log("user well finded");
 			callback(null, res);
 			return;
 		}
@@ -23,7 +22,7 @@ const verifyToken = async (req, res, next) => {
 	try {
 		const decrypt = jwt.verify(acces_token, process.env.ACCESS_TOKEN_SECRET);
 		if (!decrypt) {
-			return res.status(401).send("invalid token");
+			return res.status(401).send("Invalid token");
 		}
 		req.body.decryp_token = decrypt
 		next()
