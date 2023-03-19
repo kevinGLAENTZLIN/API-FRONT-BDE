@@ -7,6 +7,9 @@ require('dotenv').config();
 var JsonParser = BodyParser.json();
 var express = require('express');
 var router_user = express.Router()
+const cors = require('cors');
+const { password } = require('../config/config.js');
+router_user.use(cors());
 
 const call_api_admin_add = async (req) => {
     const newUser = {
@@ -151,5 +154,31 @@ router_user.delete('/delete', JsonParser, auth.verifyToken, async (req, res) => 
         }
     });
 });
+
+router_user.post('/login', JsonParser, async (req, res) => {
+  var user = null
+  request_sql.query('SELECT * FROM utilisateur WHERE name = ?', [req.body.name], (err, result) => {
+    if (err) {
+      console.log("error :", err)
+      return;
+  }
+    user = result;
+    console.log(user);
+    if (!user)
+    return res.status(400).send('User not found');
+    bcrypt.compare(req.body.password, user[0].password, async function (err, result) {
+      if (result === true) {
+        // user[0].accesToken
+        // user[0].accesToken = null;
+        // user[0].accesToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
+        // //update le jwt token dans la base
+        // res.cookie('accesToken', user[0].accesToken, { maxAge: 24 * 60 * 60 * 1000, httpOnly: true });
+        return res.status(200).send(user);
+      } else {
+        return res.status(400).send('Email or password is wrong');
+      }
+    });
+  });
+})
 
 module.exports = router_user;
