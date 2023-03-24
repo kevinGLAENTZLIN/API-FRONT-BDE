@@ -69,7 +69,7 @@ export default function BasicTabs() {
         <p>gnggn</p>
       </TabPanel>
       <TabPanel value={value} index={3}>
-        <p>ratio</p>
+        <p>Soon tm t'inquiète</p>
       </TabPanel>
     </Box>
   );
