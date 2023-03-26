@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 import { isLog } from "../utils/auth";
 import Home from "./home";
 import Admin from "./admin"
+import Inventory from './Inventory';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -55,7 +56,7 @@ export default function BasicTabs() {
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" centered>
           <Tab label="Home" {...a11yProps(0)} />
           <Tab label="Admin" {...a11yProps(1)} />
-          <Tab label="Inventaire" {...a11yProps(2)} />
+          <Tab label="Inventory" {...a11yProps(2)} />
           <Tab label="Documents" {...a11yProps(3)} />
         </Tabs>
       </Box>
@@ -66,7 +67,7 @@ export default function BasicTabs() {
         <Admin/>
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <p>gnggn</p>
+        <Inventory/>
       </TabPanel>
       <TabPanel value={value} index={3}>
         <p>Soon tm t'inquiète</p>

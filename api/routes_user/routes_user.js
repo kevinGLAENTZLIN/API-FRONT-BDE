@@ -195,4 +195,9 @@ router_user.post('/verifToken', JsonParser, async (req, res) => {
   res.status(400)
 });
 
+
+router_user.post('/verifSuperToken', JsonParser, auth.verifyAdminToken, async (req, res) => {
+  return res.status(200).send({ msg: 'Token is valid' });
+});
+
 module.exports = router_user;

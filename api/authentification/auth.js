@@ -18,7 +18,7 @@ const find_law_value = async (value, data, callback) => {
 }
 
 const verifyToken = async (req, res, next) => {
-	const acces_token = req.body.accesToken
+	const acces_token = req.body.accesToken || req.query.accesToken
 	try {
 		const decrypt = jwt.verify(acces_token, process.env.ACCESS_TOKEN_SECRET);
 		if (!decrypt) {
@@ -27,11 +27,25 @@ const verifyToken = async (req, res, next) => {
 		req.body.decryp_token = decrypt
 		next()
 	} catch (err) {
-		res.status(401).send("Access token error");
+		res.status(403).send("Access token error");
+		console.log(acces_token);
 	}
+};
+
+
+function verifyAdminToken (req, res, next) {
+    const authHeader = req.body.token || req.query.token;
+    jwt.verify(authHeader, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err)
+			return res.status(403).send(err);
+        if (user.law != process.env.ADMIN && user.law != process.env.MID_ADMIN) 
+			return res.status(403).send({ msg: 'You are not authorized to do this' });
+        next();
+    });
 };
 
 module.exports = {
 	find_law_value,
+	verifyAdminToken,
 	verifyToken
 };
